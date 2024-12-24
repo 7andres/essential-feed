@@ -40,7 +40,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithError: .connectivity,
+            toCompleteWithError: .error(.connectivity),
             when: {
                 let clientError = NSError(domain: "", code: 0)
                 client.complete(with: clientError, at: 0)
@@ -55,7 +55,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         samples.enumerated().forEach { index, code in
             expect(
                 sut,
-                toCompleteWithError: .invalidData,
+                toCompleteWithError: .error(.invalidData),
                 when: {
                     client.complete(withStatusCode: code, at: index)
                 }
@@ -68,11 +68,15 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithError: .invalidData,
+            toCompleteWithError: .error(.invalidData),
             when: {
                 client.complete(withStatusCode: 200, data: Data("invalid data".utf8))
             }
         )
+    }
+    
+    func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSONList() {
+        
     }
 }
 
@@ -87,16 +91,16 @@ private extension RemoteFeedLoaderTests {
     
     func expect(
         _ sut: RemoteFeedLoader,
-        toCompleteWithError error: RemoteFeedLoader.Error,
+        toCompleteWithError error: RemoteFeedLoader.Result,
         when action: () -> Void,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        var capturedErrors = [RemoteFeedLoader.Error]()
-        sut.load { capturedErrors.append($0) }
+        var capturedResults = [RemoteFeedLoader.Result]()
+        sut.load { capturedResults.append($0) }
         
         action()
-        XCTAssertEqual(capturedErrors, [error], file: file, line: line)
+        XCTAssertEqual(capturedResults, [error], file: file, line: line)
     }
 }
 
@@ -123,7 +127,6 @@ private extension RemoteFeedLoaderTests {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            
             messages[index].completion(.success(data, response))
         }
     }
