@@ -40,7 +40,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithResult: .failure(.connectivity),
+            toCompleteWith: .failure(.connectivity),
             when: {
                 let clientError = NSError(domain: "", code: 0)
                 client.complete(with: clientError, at: 0)
@@ -55,7 +55,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         samples.enumerated().forEach { index, code in
             expect(
                 sut,
-                toCompleteWithResult: .failure(.invalidData),
+                toCompleteWith: .failure(.invalidData),
                 when: {
                     let json = makeItemsJSON([])
                     client.complete(withStatusCode: code, data: json, at: index)
@@ -69,7 +69,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithResult: .failure(.invalidData),
+            toCompleteWith: .failure(.invalidData),
             when: {
                 client.complete(withStatusCode: 200, data: Data("invalid data".utf8))
             }
@@ -81,7 +81,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithResult: .success([]),
+            toCompleteWith: .success([]),
             when: {
                 let emptyListJSON = makeItemsJSON([])
                 client.complete(withStatusCode: 200, data: emptyListJSON)
@@ -107,7 +107,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         expect(
             sut,
-            toCompleteWithResult: .success(items),
+            toCompleteWith: .success(items),
             when: {
                 let json = makeItemsJSON([item1.json, item2.json])
                 client.complete(withStatusCode: 200, data: json)
@@ -189,16 +189,31 @@ private extension RemoteFeedLoaderTests {
     
     func expect(
         _ sut: RemoteFeedLoader,
-        toCompleteWithResult result: RemoteFeedLoader.Result,
+        toCompleteWith expectedResult: RemoteFeedLoader.Result,
         when action: () -> Void,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        var capturedResults = [RemoteFeedLoader.Result]()
-        sut.load { capturedResults.append($0) }
+        let expectation = XCTestExpectation(description: "Wait for load completion")
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedItems), .success(expectedItems)):
+                XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail(
+                    "Expectec result \(expectedResult), but got \(receivedResult) instead",
+                    file: file,
+                    line: line
+                )
+            }
+            expectation.fulfill()
+        }
         
         action()
-        XCTAssertEqual(capturedResults, [result], file: file, line: line)
+        
+        wait(for: [expectation], timeout: 1)
     }
 }
 
