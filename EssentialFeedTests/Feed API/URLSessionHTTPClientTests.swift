@@ -26,6 +26,24 @@ final class URLSessionHTTPClient {
 
 final class URLSessionHTTPClientTests: XCTestCase {
     
+    func test_getFromURL_performsGETRequestWithURL() {
+        URLProtocolStub.startInterceptingRequests()
+        
+        let url = URL(string: "http://any-url.com")!
+        let expectation = XCTestExpectation(description: "wait for request")
+        
+        URLProtocolStub.observeRequests { urlRequest in
+            XCTAssertEqual(urlRequest.url, url)
+            XCTAssertEqual(urlRequest.httpMethod, "GET")
+            expectation.fulfill()
+        }
+        
+        URLSessionHTTPClient().get(from: url, completion: { _ in })
+        
+        wait(for: [expectation], timeout: 1)
+        URLProtocolStub.stopInterceptingRequests()
+    }
+    
     func test_getFromURL_failsOnRequestError() {
         URLProtocolStub.startInterceptingRequests()
         let url = URL(string: "https://a-url.com")!
@@ -54,6 +72,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
 private extension URLSessionHTTPClientTests {
     final class URLProtocolStub: URLProtocol {
         private static var stub: Stub?
+        private static var requestObserver: ((URLRequest) -> Void)?
         
         private struct Stub {
             let data: Data?
@@ -65,6 +84,10 @@ private extension URLSessionHTTPClientTests {
             stub = Stub(data: data, response: response, error: error)
         }
         
+        static func observeRequests(observer: @escaping (URLRequest) -> Void) {
+            requestObserver = observer
+        }
+        
         static func startInterceptingRequests() {
             URLProtocol.registerClass(URLProtocolStub.self)
         }
@@ -72,9 +95,11 @@ private extension URLSessionHTTPClientTests {
         static func stopInterceptingRequests() {
             URLProtocol.unregisterClass(URLProtocolStub.self)
             stub = nil
+            requestObserver = nil
         }
         
         override class func canInit(with request: URLRequest) -> Bool {
+            requestObserver?(request)
             return true
         }
         
