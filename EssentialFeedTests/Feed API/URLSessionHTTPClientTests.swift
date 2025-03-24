@@ -8,7 +8,7 @@
 import XCTest
 import EssentialFeed
 
-final class URLSessionHTTPClient {
+final class URLSessionHTTPClient: HTTPClient {
   private let session: URLSession
   
   init(session: URLSession = .shared) {
@@ -160,7 +160,7 @@ private extension URLSessionHTTPClientTests {
   func makeSUT(
     file: StaticString = #file,
     line: UInt = #line
-  ) -> URLSessionHTTPClient {
+  ) -> HTTPClient {
     let sut = URLSessionHTTPClient()
     trackForMemoryLeaks(sut, file: file, line: line)
     return sut
