@@ -16,7 +16,7 @@ extension XCTestCase {
         addTeardownBlock { [weak instance] in
             XCTAssertNil(
                 instance,
-                "Instance should be deallocated. Potential memory leak.",
+                "Instance should be deallocated. Potential memory leak!",
                 file: file,
                 line: line
             )
