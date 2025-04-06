@@ -11,21 +11,8 @@ import EssentialFeed
 final class EssentialFeedEndToEndTests: XCTestCase {
   
   func test_endToEndTestServerGETFeedResult_matchesFixedTestAccountData () {
-    let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
-    let client = URLSessionHTTPClient()
-    let loader = RemoteFeedLoader(url: testServerURL, client: client)
     
-    let expectation = expectation(description: "wait for completion")
-    var receivedResult: LoadFeedResult?
-    
-    loader.load { result in
-      receivedResult = result
-      expectation.fulfill()
-    }
-    
-    wait(for: [expectation], timeout: 5)
-    
-    switch receivedResult {
+    switch getFeedResult() {
     case let .success(items):
       XCTAssertEqual(items.count, 8, "Expected 8 items in the tests account feed")
       XCTAssertEqual(items[0], expectedItem(at: 0))
@@ -47,7 +34,25 @@ final class EssentialFeedEndToEndTests: XCTestCase {
 
 // MARK: Helpers
 private extension EssentialFeedEndToEndTests {
-  private func expectedItem(at index: Int) -> FeedItem {
+  func getFeedResult() -> LoadFeedResult? {
+    let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
+    let client = URLSessionHTTPClient()
+    let loader = RemoteFeedLoader(url: testServerURL, client: client)
+    
+    let expectation = expectation(description: "wait for completion")
+    var receivedResult: LoadFeedResult?
+    
+    loader.load { result in
+      receivedResult = result
+      expectation.fulfill()
+    }
+    
+    wait(for: [expectation], timeout: 5)
+    
+    return receivedResult
+  }
+  
+  func expectedItem(at index: Int) -> FeedItem {
     return FeedItem(
       id: id(at: index),
       description: description(at: index),
@@ -55,7 +60,7 @@ private extension EssentialFeedEndToEndTests {
       imageURL: imageURL(at: index))
   }
   
-  private func id(at index: Int) -> UUID {
+  func id(at index: Int) -> UUID {
     return UUID(uuidString: [
       "73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6",
       "BA298A85-6275-48D3-8315-9C8F7C1CD109",
@@ -68,7 +73,7 @@ private extension EssentialFeedEndToEndTests {
     ][index])!
   }
   
-  private func description(at index: Int) -> String? {
+  func description(at index: Int) -> String? {
     return [
       "Description 1",
       nil,
@@ -94,7 +99,7 @@ private extension EssentialFeedEndToEndTests {
     ][index]
   }
   
-  private func imageURL(at index: Int) -> URL {
+  func imageURL(at index: Int) -> URL {
     return URL(string: "https://url-\(index+1).com")!
   }
 }
