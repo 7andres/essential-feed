@@ -21,7 +21,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
   }
   
   func test_getFromURL_performsGETRequestWithURL() {
-    let url = makeAnyURL()
+    let url = anyURL()
     let expectation = XCTestExpectation(description: "wait for request")
     
     URLProtocolStub.observeRequests { urlRequest in
@@ -35,7 +35,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
   }
   
   func test_getFromURL_failsOnRequestError() {
-    let requestError = makeNSError()
+    let requestError = anyNSError()
     
     guard let receivedError = resultErrorFor(
       data: nil,
@@ -67,7 +67,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
       resultErrorFor(
         data: makeAnyData(),
         response: nil,
-        error: makeNSError()
+        error: anyNSError()
       )
     )
     
@@ -75,7 +75,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
       resultErrorFor(
         data: nil,
         response: makeNonHTTPURLResponse(),
-        error: makeNSError()
+        error: anyNSError()
       )
     )
     
@@ -83,7 +83,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
       resultErrorFor(
         data: nil,
         response: makeAnyHTTPURLResponse(),
-        error: makeNSError()
+        error: anyNSError()
       )
     )
     
@@ -91,7 +91,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
       resultErrorFor(
         data: makeAnyData(),
         response: makeNonHTTPURLResponse(),
-        error: makeNSError()
+        error: anyNSError()
       )
     )
     
@@ -99,7 +99,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
       resultErrorFor(
         data: makeAnyData(),
         response: makeAnyHTTPURLResponse(),
-        error: makeNSError()
+        error: anyNSError()
       )
     )
     
@@ -193,7 +193,7 @@ private extension URLSessionHTTPClientTests {
     let expectation = XCTestExpectation(description: "wait for completion")
     var receivedResult: HTTPClientResult!
     
-    sut.get(from: makeAnyURL()) { result in
+    sut.get(from: anyURL()) { result in
       receivedResult = result
       expectation.fulfill()
     }
@@ -202,21 +202,13 @@ private extension URLSessionHTTPClientTests {
     return receivedResult
   }
   
-  func makeAnyURL() -> URL {
-    URL(string: "http://any-url.com")!
-  }
-  
   func makeAnyData() -> Data {
     Data("any data".utf8)
   }
   
-  func makeNSError() -> NSError {
-    NSError(domain: "any erro", code: 0)
-  }
-  
   func makeAnyHTTPURLResponse() -> HTTPURLResponse {
     HTTPURLResponse(
-      url: makeAnyURL(),
+      url: anyURL(),
       statusCode: 200,
       httpVersion: nil,
       headerFields: nil
@@ -225,7 +217,7 @@ private extension URLSessionHTTPClientTests {
   
   func makeNonHTTPURLResponse() -> URLResponse {
     URLResponse(
-      url: makeAnyURL(),
+      url: anyURL(),
       mimeType: nil,
       expectedContentLength: 0,
       textEncodingName: nil
