@@ -112,7 +112,6 @@ class CodableFeedStoreTests: XCTestCase {
     wait(for: [exp], timeout: 1.0)
   }
   
-  
   func test_retrieve_hasNoSideEffectsOnEmptyCache() {
     let sut = makeSUT()
     let exp = expectation(description: "Wait for cache retrieval")
@@ -161,7 +160,12 @@ class CodableFeedStoreTests: XCTestCase {
   
   // - MARK: Helpers
 
-  private func makeSUT() -> CodableFeedStore {
-    return CodableFeedStore()
+  private func makeSUT(
+    file: StaticString = #file,
+    line: UInt = #line
+  ) -> CodableFeedStore {
+    let sut = CodableFeedStore()
+    trackForMemoryLeaks(sut, file: file, line: line)
+    return sut
   }
 }
