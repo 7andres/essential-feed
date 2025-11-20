@@ -9,6 +9,7 @@ import XCTest
 import EssentialFeed
 
 extension FailableRetrieveFeedStoreSpecs where Self: XCTestCase {
+  
   func assertThatRetrieveDeliversFailureOnRetrievalError(
     on sut: FeedStore,
     file: StaticString = #file,
