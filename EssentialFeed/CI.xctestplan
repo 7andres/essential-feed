@@ -16,6 +16,14 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:EssentialFeed.xcodeproj",
+        "identifier" : "080EDEF921B6DA7E00813479",
+        "name" : "EssentialFeedTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:EssentialFeed.xcodeproj",
         "identifier" : "414DFF9E2D920432008311A5",
         "name" : "EssentialFeedEndToEndTests"
       }
@@ -24,8 +32,8 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:EssentialFeed.xcodeproj",
-        "identifier" : "080EDEF921B6DA7E00813479",
-        "name" : "EssentialFeedTests"
+        "identifier" : "411510B02ED4C8A4002954BC",
+        "name" : "EssentialFeedCacheIntegrationTests"
       }
     }
   ],
